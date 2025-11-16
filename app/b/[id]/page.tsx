@@ -13,6 +13,7 @@ import { DeleteBookmarkButton } from "@/components/bookmarks/delete-bookmark-but
 import { EditNote } from "@/components/bookmarks/edit-note";
 import { EditSummary } from "@/components/bookmarks/edit-summary";
 import { ReprocessButton } from "@/components/bookmarks/reprocess-button";
+import { Tag } from "@/components/bookmarks/tag";
 import {
   ArrowLeft,
   ExternalLink,
@@ -21,7 +22,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-interface Tag {
+interface TagData {
   id: string;
   name: string;
 }
@@ -43,7 +44,7 @@ interface Bookmark {
   summaryLong: string | null;
   language: string | null;
   llmModel: string | null;
-  tags: Tag[];
+  tags: TagData[];
 }
 
 async function getBookmark(
@@ -195,7 +196,7 @@ export default async function BookmarkDetailPage({
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to bookmarks
+            Back
           </Link>
           <div className="flex gap-2">
             <ReprocessButton bookmarkId={bookmark.id} />
@@ -254,14 +255,9 @@ export default async function BookmarkDetailPage({
 
                 {/* Tags */}
                 {bookmark.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2.5 mb-4">
                     {bookmark.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-md"
-                      >
-                        {tag.name}
-                      </span>
+                      <Tag key={tag.id} name={tag.name} />
                     ))}
                   </div>
                 )}

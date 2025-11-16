@@ -49,7 +49,7 @@ export function DeleteBookmarkButton({
       className="gap-2"
     >
       <Trash2 className="w-4 h-4" />
-      {isDeleting ? "Deleting..." : "Delete Bookmark"}
+      {isDeleting ? "..." : ""}
     </Button>
   );
 }

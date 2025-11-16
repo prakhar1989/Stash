@@ -70,7 +70,7 @@ export function EditNote({ bookmarkId, initialNote }: EditNoteProps) {
         <>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Your Note:
+              Note
             </p>
             <Button
               variant="ghost"
@@ -89,7 +89,7 @@ export function EditNote({ bookmarkId, initialNote }: EditNoteProps) {
       ) : (
         <>
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Your Note:
+            Note
           </p>
           <Textarea
             value={note}

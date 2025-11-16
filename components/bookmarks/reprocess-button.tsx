@@ -59,7 +59,7 @@ export function ReprocessButton({
       className={className}
     >
       <RefreshCw className={`w-4 h-4 mr-2 ${isReprocessing ? "animate-spin" : ""}`} />
-      {isReprocessing ? "Reprocessing..." : "Reprocess with AI"}
+      {isReprocessing ? "Reprocessing..." : "Summarize"}
     </Button>
   );
 }

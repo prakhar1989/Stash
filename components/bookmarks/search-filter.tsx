@@ -4,15 +4,16 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Tag } from "@/components/bookmarks/tag";
 
-interface Tag {
+interface TagData {
   id: string;
   name: string;
   bookmarkCount: number;
 }
 
 interface SearchFilterProps {
-  tags: Tag[];
+  tags: TagData[];
 }
 
 export function SearchFilter({ tags }: SearchFilterProps) {
@@ -71,20 +72,15 @@ export function SearchFilter({ tags }: SearchFilterProps) {
           >
             All Tags
           </button>
-          {tags.slice(0, 20).map((tag, index) => (
-            <button
+          {tags.filter(tag => tag.bookmarkCount > 1).slice(0, 10).map((tag, index) => (
+            <Tag
               key={tag.id}
+              name={tag.name}
+              count={tag.bookmarkCount}
               onClick={() => setSelectedTag(tag.name)}
-              className={`px-4 py-2 text-sm font-mono font-semibold rounded-lg hover:scale-105 ${
-                selectedTag === tag.name
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                  : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
-              }`}
-              style={{ animationDelay: `${0.1 + index * 0.05}s` }}
-            >
-              {tag.name}{" "}
-              <span className="opacity-70">({tag.bookmarkCount})</span>
-            </button>
+              isSelected={selectedTag === tag.name}
+              animationDelay={`${0.1 + index * 0.05}s`}
+            />
           ))}
         </div>
       )}

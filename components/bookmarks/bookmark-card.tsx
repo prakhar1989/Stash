@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Favicon } from "./favicon";
+import { Tag } from "./tag";
 import {
   ExternalLink,
   AlertCircle,
@@ -14,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 
-interface Tag {
+interface TagData {
   id: string;
   name: string;
 }
@@ -27,7 +28,7 @@ interface BookmarkCardProps {
   summaryShort: string | null;
   status: "pending" | "processed" | "failed";
   createdAt: Date | string;
-  tags: Tag[];
+  tags: TagData[];
   faviconUrl?: string | null;
   onDelete?: (id: string) => void;
 }
@@ -108,12 +109,7 @@ export function BookmarkCard({
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="px-3 py-1.5 text-xs font-mono font-semibold bg-primary/10 text-primary border border-primary/20 rounded-lg transition-all duration-300 hover:bg-primary/20 hover:scale-105"
-                >
-                  {tag.name}
-                </span>
+                <Tag key={tag.id} name={tag.name} />
               ))}
             </div>
           )}
