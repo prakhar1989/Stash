@@ -106,29 +106,6 @@ Visit `http://localhost:3000` to see the application running. Sign in and start 
 - `POST /api/bookmarks/[id]/reprocess` - Retry failed processing
 - `GET /api/tags` - Get all tags with counts
 
-## Usage
-
-### Adding Bookmarks
-
-1. Enter any URL in the form
-2. Optionally add a personal note
-3. Optionally add comma-separated tags
-4. Click "Add Bookmark"
-5. AI automatically analyzes and tags the content
-
-### Searching
-
-- Use the search bar for full-text search
-- Click tag chips to filter by specific tags
-- Combine search query with tag filters
-
-### Viewing Details
-
-- Click any bookmark card to see full details
-- View short and detailed summaries
-- See all metadata (language, source type, processing date)
-- Retry processing for failed bookmarks
-
 ## Project Structure
 
 ```
@@ -190,19 +167,8 @@ drizzle/
 - Neon DB lives here: https://console.neon.tech/app/projects/shiny-sunset-02500855
 - Deployed on Vercel: https://vercel.com/prakhars-projects-76dc8cec/bookmarks
 
-## Learn More
-
-- [Design Documentation](docs/design.md) - Full technical design
-- [Neon Auth Documentation](https://neon.com/docs/guides/neon-auth)
-- [Stack Auth Documentation](https://docs.stack-auth.com/)
-- [Google AI Studio](https://aistudio.google.com/)
-- [Gemini API Documentation](https://ai.google.dev/gemini-api/docs)
-
 ## Future Enhancements
 
 - Background job processing for bookmark analysis
 - Semantic search with pgvector embeddings
-- Dark mode support
-- Pagination and infinite scroll
-- Browser extension for quick bookmarking
 - Export/import functionality
