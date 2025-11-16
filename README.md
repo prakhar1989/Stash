@@ -176,7 +176,8 @@ drizzle/
 
 ## Production Setup
 
-Configure production settings in the Neon Console's Auth Configuration tab, such as domain restrictions.
+- Neon DB lives here: https://console.neon.tech/app/projects/shiny-sunset-02500855
+- Deployed on Vercel: https://vercel.com/prakhars-projects-76dc8cec/bookmarks
 
 ## Learn More
 
@@ -189,9 +190,6 @@ Configure production settings in the Neon Console's Auth Configuration tab, such
 ## Future Enhancements
 
 - Background job processing for content extraction
-- Browser extension for quick bookmarking
-- Collections/folders for organization
-- Bookmark sharing and collaboration
-- Export to various formats (JSON, HTML, Markdown)
 - Semantic search with pgvector
 - Dark mode support
+- Pagination
