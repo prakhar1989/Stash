@@ -82,7 +82,7 @@ export async function summarizeAndTag(
   }
 
   // Build the prompt
-  const prompt = `You are a bookmark organizer. Given the plain text content of a web page and its URL, extract a short summary and a set of tags that describe the topic, domain, and use-case. Be concise but informative.
+  const prompt = `You are a bookmark organizer. Given the plain text content of a web page and its URL, extract a short summary and a set of tags (at most 3) that describe the topic, domain, and use-case. Be concise but informative.
 
 URL: ${input.url}
 ${input.title ? `Title: ${input.title}` : ""}
@@ -96,7 +96,7 @@ Analyze this content and provide a JSON response with the following fields:
 - summary_short: A 1-2 sentence summary of the content (optional)
 - summary_long: A multi-paragraph detailed summary (optional)
 - language: Detected language code (e.g., 'en', 'ja')
-- tags: Array of relevant tags describing topic, domain, and use-case
+- tags: Array of relevant tags describing topic, domain, and use-case (at most 3)
 - category: Primary category of the content (optional)`;
 
   // Define JSON schema for structured output
