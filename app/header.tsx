@@ -13,9 +13,11 @@ export function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4">
         <div>
           <div className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
-            Stack Todos
+            Bookmarks
           </div>
-          <p className="text-lg font-semibold text-foreground">Team board</p>
+          <p className="text-lg font-semibold text-foreground">
+            AI-Powered Bookmarking
+          </p>
         </div>
         {user ? (
           <div className="flex items-center gap-4">

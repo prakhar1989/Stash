@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from "next/server";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { and, eq } from "drizzle-orm";
+import * as schema from "@/app/schema/schema";
+import { stackServerApp } from "@/app/stack";
+
+/**
+ * GET /api/bookmarks/[id] - Get a single bookmark by ID
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    // Get authenticated user
+    const user = await stackServerApp.getUser();
+    if (!user || !user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    // Initialize database
+    const db = drizzle(neon(process.env.DATABASE_URL!), { schema });
+
+    // Fetch bookmark with content
+    const bookmarks = await db
+      .select({
+        id: schema.bookmarks.id,
+        url: schema.bookmarks.url,
+        normalizedUrl: schema.bookmarks.normalizedUrl,
+        title: schema.bookmarks.title,
+        description: schema.bookmarks.description,
+        sourceType: schema.bookmarks.sourceType,
+        faviconUrl: schema.bookmarks.faviconUrl,
+        status: schema.bookmarks.status,
+        errorMessage: schema.bookmarks.errorMessage,
+        createdAt: schema.bookmarks.createdAt,
+        updatedAt: schema.bookmarks.updatedAt,
+        lastProcessedAt: schema.bookmarks.lastProcessedAt,
+        summaryShort: schema.bookmarkContents.summaryShort,
+        summaryLong: schema.bookmarkContents.summaryLong,
+        language: schema.bookmarkContents.language,
+        llmModel: schema.bookmarkContents.llmModel,
+      })
+      .from(schema.bookmarks)
+      .leftJoin(
+        schema.bookmarkContents,
+        eq(schema.bookmarks.id, schema.bookmarkContents.bookmarkId),
+      )
+      .where(
+        and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)),
+      )
+      .limit(1);
+
+    if (bookmarks.length === 0) {
+      return NextResponse.json(
+        { error: "Bookmark not found" },
+        { status: 404 },
+      );
+    }
+
+    const bookmark = bookmarks[0];
+
+    // Fetch tags
+    const tags = await db
+      .select({
+        id: schema.tags.id,
+        name: schema.tags.name,
+      })
+      .from(schema.tags)
+      .innerJoin(
+        schema.bookmarkTags,
+        eq(schema.tags.id, schema.bookmarkTags.tagId),
+      )
+      .where(eq(schema.bookmarkTags.bookmarkId, id));
+
+    return NextResponse.json({
+      bookmark: {
+        ...bookmark,
+        tags,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching bookmark:", error);
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
+  }
+}

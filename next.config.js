@@ -9,6 +9,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ["jsdom", "@mozilla/readability"],
+  },
   webpack: (config) => {
     config.externals.push("bun:sqlite");
     return config;

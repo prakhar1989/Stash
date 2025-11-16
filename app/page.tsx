@@ -1,28 +1,13 @@
-import { AddTodoForm } from "app/add-todo";
 import { Header } from "app/header";
-import { TodoList } from "app/todo-list";
-
-import { UsersStats } from "app/users-stats";
 import { stackServerApp } from "app/stack";
+import { BookmarksPage } from "./bookmarks-page";
 
 export default async function Home() {
   const user = await stackServerApp.getUser();
 
   let content = null;
   if (user) {
-    content = (
-      <main className="mx-auto w-full flex-1 max-w-6xl px-4 py-10">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
-          <div className="space-y-6">
-            <AddTodoForm />
-            <TodoList />
-          </div>
-          <div className="lg:sticky lg:top-24">
-            <UsersStats />
-          </div>
-        </div>
-      </main>
-    );
+    content = <BookmarksPage />;
   } else {
     content = (
       <main className="mx-auto w-full flex-1 max-w-3xl px-4 py-16">
@@ -31,11 +16,11 @@ export default async function Home() {
             Welcome
           </p>
           <h1 className="mt-3 text-3xl font-semibold text-foreground">
-            Sign in to start tracking the work that matters.
+            Sign in to start organizing your bookmarks.
           </h1>
           <p className="mt-4 text-base text-muted-foreground">
-            Once you&apos;re authenticated you can capture todos, track the
-            team, and keep everyone in sync.
+            Once you&apos;re authenticated you can save links, automatically
+            extract content, and search with AI-powered summaries and tags.
           </p>
         </div>
       </main>
