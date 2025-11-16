@@ -25,9 +25,6 @@ export function Header() {
             <div className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
               Stashly
             </div>
-            <p className="text-lg font-semibold text-foreground">
-              AI-Powered Bookmarking
-            </p>
           </div>
         </div>
         {user ? (
@@ -37,7 +34,7 @@ export function Header() {
                 Signed in as
               </p>
               <p className="text-sm font-medium text-foreground">
-                {user.primaryEmail}
+                {user.displayName ?? user.primaryEmail ?? "you"}
               </p>
             </div>
             <ThemeToggle />
