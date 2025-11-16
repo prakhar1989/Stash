@@ -212,7 +212,7 @@ export function extractReadableContent(
 
     // Convert HTML content to plain text
     const { document: contentDoc } = parseHTML(article.content || "");
-    const textContent = contentDoc.body.textContent || "";
+    const textContent = contentDoc.documentElement?.textContent || contentDoc.body?.textContent || "";
 
     const result = {
       title: article.title || document.title || null,
