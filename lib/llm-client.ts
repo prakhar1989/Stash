@@ -1,5 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
-import { truncateContent } from "./bookmark-utils";
+import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
 // Zod schema for LLM response validation
@@ -26,9 +25,9 @@ export type LLMResult = z.infer<typeof LLMResultSchema>;
 
 export interface SummarizeInput {
   url: string;
-  title: string | null;
-  metaDescription: string | null;
-  contentText: string | null;
+  title?: string | null;
+  metaDescription?: string | null;
+  contentText?: string | null;
 }
 
 /**
@@ -50,6 +49,7 @@ function getGeminiClient(): GoogleGenAI {
 
 /**
  * Calls Gemini to summarize and tag bookmark content
+ * Uses URL Context to fetch the URL content and Grounding for additional context
  * Uses structured output with JSON schema for reliable parsing
  */
 export async function summarizeAndTag(
@@ -57,83 +57,42 @@ export async function summarizeAndTag(
   model: string = "gemini-2.5-flash",
   maxRetries: number = 2,
 ): Promise<LLMResult> {
-  console.log("[LLM] Starting summarizeAndTag", {
+  console.log("[LLM] Starting summarizeAndTag with URL Context + Grounding", {
     url: input.url,
     model,
     maxRetries,
-    hasTitle: !!input.title,
-    hasMetaDescription: !!input.metaDescription,
-    contentLength: input.contentText?.length || 0,
   });
 
   const client = getGeminiClient();
 
-  // Truncate content if too long (keep ~10-15k chars for LLM context)
-  const truncatedContent = input.contentText
-    ? truncateContent(input.contentText, 15000)
-    : "";
+  // Build the prompt - use URL context to fetch and analyze the specific URL
+  const prompt = `You are a bookmark organizer. I need you to analyze the content at the following URL and extract key information for organizing it as a bookmark.
 
-  if (input.contentText && truncatedContent.length < input.contentText.length) {
-    console.log("[LLM] Content truncated", {
-      originalLength: input.contentText.length,
-      truncatedLength: truncatedContent.length,
-      charsRemoved: input.contentText.length - truncatedContent.length,
-    });
-  }
+Please analyze the content from this URL: ${input.url}
 
-  // Build the prompt
-  const prompt = `You are a bookmark organizer. Given the plain text content of a web page and its URL, extract a short summary and a set of tags (at most 3) that describe the topic, domain, and use-case. Be concise but informative.
+After analyzing the page content, provide your response in valid JSON format with the following structure:
 
-URL: ${input.url}
-${input.title ? `Title: ${input.title}` : ""}
-${input.metaDescription ? `Meta Description: ${input.metaDescription}` : ""}
+{
+  "title": "A human-friendly title for the bookmark (based on the actual page content)",
+  "summary_short": "A 1-2 sentence summary of what the page is about (optional)",
+  "summary_long": "A detailed multi-paragraph summary of the content (optional)",
+  "language": "Detected language code of the content (e.g., 'en', 'ja', 'es')",
+  "tags": ["tag1", "tag2", "tag3"] (at most 3 to 5 relevant tags describing the topic, domain, and use-case),
+  "category": "Primary category of the content (optional, e.g., Technology, News, Tutorial, Documentation)"
+}
 
-Content:
-${truncatedContent || "(No content available)"}
-
-Analyze this content and provide a JSON response with the following fields:
-- title: A human-friendly title for the bookmark
-- summary_short: A 1-2 sentence summary of the content (optional)
-- summary_long: A multi-paragraph detailed summary (optional)
-- language: Detected language code (e.g., 'en', 'ja')
-- tags: Array of relevant tags describing topic, domain, and use-case (at most 3)
-- category: Primary category of the content (optional)`;
-
-  // Define JSON schema for structured output
-  const responseSchema = {
-    type: "object",
-    properties: {
-      title: {
-        type: "string",
-        description: "Human-friendly title for the bookmark",
-      },
-      summary_short: {
-        type: "string",
-        description: "1-2 sentence summary of the content",
-      },
-      summary_long: {
-        type: "string",
-        description: "Multi-paragraph detailed summary",
-      },
-      language: {
-        type: "string",
-        description: "Detected language code (e.g., 'en', 'ja')",
-      },
-      tags: {
-        type: "array",
-        items: { type: "string" },
-        description:
-          "Array of relevant tags describing topic, domain, and use-case",
-      },
-      category: {
-        type: "string",
-        description: "Primary category of the content",
-      },
-    },
-    required: ["title", "language", "tags"],
-  };
+IMPORTANT:
+- Provide 3-5 relevant tags describing the topic, domain, and use-case
+- Return ONLY valid JSON, no markdown code blocks or extra text
+- The title, language, and tags fields are required`;
 
   let lastError: Error | null = null;
+
+  // Configure URL Context + Grounding with Google Search
+  // https://ai.google.dev/gemini-api/docs/url-context
+  // https://ai.google.dev/gemini-api/docs/google-search
+  const urlContextTool = { urlContext: {} };
+  const groundingTool = { googleSearch: {} };
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -141,31 +100,57 @@ Analyze this content and provide a JSON response with the following fields:
         url: input.url,
       });
 
-      const response = await client.models.generateContent({
+      const response: GenerateContentResponse = await client.models.generateContent({
         model,
         contents: prompt,
         config: {
-          responseMimeType: "application/json",
-          responseSchema,
+          tools: [urlContextTool, groundingTool],
           maxOutputTokens: 4000,
         },
       });
 
       const text = response.text;
 
+      // Log URL context metadata if available
+      if (response.candidates && response.candidates[0].urlContextMetadata) {
+        console.log("[LLM] URL context metadata received", {
+          url: input.url,
+          urlContextMetadata: response.candidates[0].urlContextMetadata,
+        });
+      }
+
+      // Log grounding metadata if available
+      if (response.candidates &&  response.candidates[0].groundingMetadata) {
+        console.log("[LLM] Grounding metadata received", {
+          url: input.url,
+          groundingMetadata: response.candidates[0].groundingMetadata
+        });
+      }
+
       console.log("[LLM] Received response", {
         url: input.url,
         attempt: attempt + 1,
         responseLength: text?.length || 0,
         hasResponse: !!text,
+        candidates: response.candidates
       });
 
       if (!text) {
         throw new Error("No content in LLM response");
       }
 
+      // Extract JSON from response (may be wrapped in markdown code blocks)
+      let jsonText = text.trim();
+
+      // Remove markdown code blocks if present
+      if (jsonText.startsWith("```json")) {
+        jsonText = jsonText.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+      } else if (jsonText.startsWith("```")) {
+        jsonText = jsonText.replace(/^```\s*/, "").replace(/\s*```$/, "");
+      }
+
       // Parse and validate response
-      const parsed = JSON.parse(text);
+      const parsed = JSON.parse(jsonText);
       console.log("[LLM] Parsed JSON response", {
         url: input.url,
         parsedKeys: Object.keys(parsed),

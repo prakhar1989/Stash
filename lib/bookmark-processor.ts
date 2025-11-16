@@ -1,7 +1,6 @@
 import { NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { eq } from "drizzle-orm";
 import * as schema from "@/app/schema/schema";
-import { fetchAndExtractContent } from "./content-extractor";
 import {
   summarizeAndTag,
   getCurrentLLMModel,
@@ -20,10 +19,9 @@ export interface ProcessBookmarkOptions {
 
 /**
  * Main function to process a bookmark:
- * 1. Fetches HTML and extracts readable content
- * 2. Calls LLM to summarize and tag
- * 3. Updates database with results
- * 4. Updates search vector
+ * 1. Calls LLM with URL Context + Grounding to analyze the URL
+ * 2. Updates database with results
+ * 3. Updates search vector
  */
 export async function processBookmark(
   db: NeonHttpDatabase<typeof schema>,
@@ -60,26 +58,23 @@ export async function processBookmark(
       })
       .where(eq(schema.bookmarks.id, bookmarkId));
 
-    // Step 1: Fetch and extract content
-    const extracted = await fetchAndExtractContent(bookmark.url);
-
-    // Step 2: Call LLM for summarization and tagging
+    // Step 1: Call LLM with URL Context + Grounding to analyze the URL
     const llmResult = await summarizeAndTag({
       url: bookmark.url,
-      title: extracted.title,
-      metaDescription: extracted.metaDescription,
-      contentText: extracted.textContent,
     });
 
-    // Step 3: Generate content hash
-    const contentHash = generateContentHash(extracted.textContent || "");
+    // Step 2: Generate content hash based on the LLM summary
+    // Since we no longer extract raw content, we'll use the summary as the content
+    const contentHash = generateContentHash(
+      llmResult.summary_long || llmResult.summary_short || llmResult.title,
+    );
 
-    // Step 4: Upsert bookmark_contents
+    // Step 3: Upsert bookmark_contents
     await db
       .insert(schema.bookmarkContents)
       .values({
         bookmarkId,
-        rawContent: extracted.textContent,
+        rawContent: null, // No longer storing raw extracted content
         contentHash,
         summaryShort: llmResult.summary_short || null,
         summaryLong: llmResult.summary_long || null,
@@ -91,7 +86,7 @@ export async function processBookmark(
       .onConflictDoUpdate({
         target: schema.bookmarkContents.bookmarkId,
         set: {
-          rawContent: extracted.textContent,
+          rawContent: null, // No longer storing raw extracted content
           contentHash,
           summaryShort: llmResult.summary_short || null,
           summaryLong: llmResult.summary_long || null,
@@ -103,7 +98,7 @@ export async function processBookmark(
         },
       });
 
-    // Step 5: Update bookmark with extracted metadata
+    // Step 4: Update bookmark with LLM-generated metadata
     const updateData: Record<string, any> = {
       status: "processed",
       lastProcessedAt: new Date(),
@@ -112,15 +107,7 @@ export async function processBookmark(
 
     // Update title if it wasn't provided or if LLM has a better one
     if (!bookmark.title || bookmark.title.length === 0) {
-      updateData.title = llmResult.title || extracted.title;
-    }
-
-    // Update source type and favicon if available
-    if (extracted.sourceType) {
-      updateData.sourceType = extracted.sourceType;
-    }
-    if (extracted.faviconUrl) {
-      updateData.faviconUrl = extracted.faviconUrl;
+      updateData.title = llmResult.title;
     }
 
     await db
@@ -128,13 +115,13 @@ export async function processBookmark(
       .set(updateData)
       .where(eq(schema.bookmarks.id, bookmarkId));
 
-    // Step 6: Handle tags
+    // Step 5: Handle tags
     if (llmResult.tags && llmResult.tags.length > 0) {
       const tagIds = await ensureTags(db, userId, llmResult.tags);
       await updateBookmarkTags(db, bookmarkId, tagIds);
     }
 
-    // Step 7: Update search vector
+    // Step 6: Update search vector
     await updateSearchVector(db, bookmarkId);
 
     console.log(`Successfully processed bookmark: ${bookmarkId}`);

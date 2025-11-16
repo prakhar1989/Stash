@@ -1,46 +1,23 @@
 #!/usr/bin/env tsx
 /**
- * Test script for bookmark content extraction and LLM processing
+ * Test script for bookmark processing with Grounding
  * Usage: npx tsx scripts/test-bookmark-processing.ts <url>
  * Example: npx tsx scripts/test-bookmark-processing.ts https://example.com
  */
 
-import { fetchAndExtractContent } from "../lib/content-extractor";
 import { summarizeAndTag } from "../lib/llm-client";
 
 async function testBookmarkProcessing(url: string) {
-  console.log("\n=== Testing Bookmark Processing ===\n");
+  console.log("\n=== Testing Bookmark Processing with Grounding ===\n");
   console.log(`URL: ${url}\n`);
 
   try {
-    // Step 1: Extract content from URL
-    console.log("📥 Step 1: Extracting content from URL...\n");
-    const extracted = await fetchAndExtractContent(url);
-
-    console.log("✅ Content Extraction Results:");
-    console.log("─".repeat(60));
-    console.log(`Title: ${extracted.title || "(none)"}`);
-    console.log(`Meta Description: ${extracted.metaDescription || "(none)"}`);
-    console.log(`Favicon URL: ${extracted.faviconUrl || "(none)"}`);
-    console.log(`Source Type: ${extracted.sourceType}`);
+    // Process URL with LLM using Grounding with Google Search
     console.log(
-      `Text Content Length: ${extracted.textContent?.length || 0} chars`,
+      "🤖 Processing URL with Gemini (using Grounding with Google Search)...\n",
     );
-    if (extracted.textContent) {
-      console.log(
-        `Text Content Preview: ${extracted.textContent.substring(0, 200)}...`,
-      );
-    }
-    console.log("─".repeat(60));
-    console.log("");
-
-    // Step 2: Summarize and tag with LLM
-    console.log("🤖 Step 2: Processing with LLM...\n");
     const llmResult = await summarizeAndTag({
       url,
-      title: extracted.title,
-      metaDescription: extracted.metaDescription,
-      contentText: extracted.textContent,
     });
 
     console.log("✅ LLM Processing Results:");
