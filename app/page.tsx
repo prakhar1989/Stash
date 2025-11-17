@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { Header } from "app/header";
-import { useUser } from "@stackframe/stack";
+import { useUser, useStackApp } from "@stackframe/stack";
+import { Button } from "@/components/ui/button";
 import { BookmarksPage } from "./bookmarks-page";
 
 export default function Home() {
   const user = useUser();
+  const app = useStackApp();
 
   let content = null;
   if (user) {
@@ -20,10 +23,17 @@ export default function Home() {
           <h1 className="mt-6 text-4xl font-black text-foreground leading-tight animate-fade-in-up stagger-1">
             Sign in to start organizing your bookmarks.
           </h1>
-          <p className="mt-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto animate-fade-in-up stagger-2">
+          <p className="my-8 text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto animate-fade-in-up stagger-2">
             Save links, automatically extract content, and search with
             AI-powered summaries and tags.
           </p>
+            <Button
+              asChild
+              size="lg"
+              className="transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            >
+              <Link href={app.urls.signUp}>Get Started</Link>
+            </Button>
         </div>
       </main>
     );

@@ -58,13 +58,6 @@ export function Header() {
             >
               <Link href={app.urls.signIn}>Sign In</Link>
             </Button>
-            <Button
-              asChild
-              size="sm"
-              className="transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <Link href={app.urls.signUp}>Get Started</Link>
-            </Button>
           </div>
         )}
       </div>
