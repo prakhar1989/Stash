@@ -67,3 +67,7 @@ Commits follow the repo’s initial imperative-mood style (`first commit`); keep
 ## Environment & Configuration
 
 Copy the Neon Auth secrets (`NEXT_PUBLIC_STACK_PROJECT_ID`, etc.) into `.env.local`; never commit this file. For new contributors, document extra secrets inside `README.md` and reference Neon Console instructions. Rotate keys if they appear in logs or PR discussions.
+
+## Learning and Memory
+
+After every session, write down your key learnings in LEARNINGS.md. Before starting every session, make sure to read LEARNINGS.md and don't repeat the same mistakes.
