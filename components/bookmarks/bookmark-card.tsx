@@ -155,7 +155,7 @@ export function BookmarkCard({
             </div>
 
             {/* Share and Delete buttons */}
-            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center gap-2">
               {/* Share button */}
               <button
                 onClick={handleShare}

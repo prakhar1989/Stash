@@ -12,8 +12,8 @@ import { Favicon } from "@/components/bookmarks/favicon";
 import { DeleteBookmarkButton } from "@/components/bookmarks/delete-bookmark-button";
 import { EditNote } from "@/components/bookmarks/edit-note";
 import { EditSummary } from "@/components/bookmarks/edit-summary";
-import { ReprocessButton } from "@/components/bookmarks/reprocess-button";
 import { ClickableTags } from "@/components/bookmarks/clickable-tags";
+import { BookmarkActionsMenu } from "@/components/bookmarks/bookmark-actions-menu";
 import {
   ArrowLeft,
   ExternalLink,
@@ -189,10 +189,10 @@ export default async function BookmarkDetailPage({
             Back
           </Link>
           {isOwner && (
-            <div className="flex gap-2">
-              <ReprocessButton bookmarkId={bookmark.id} />
-              <DeleteBookmarkButton bookmarkId={bookmark.id} />
-            </div>
+            <BookmarkActionsMenu
+              bookmarkId={bookmark.id}
+              bookmarkUrl={bookmark.url}
+            />
           )}
         </div>
 
