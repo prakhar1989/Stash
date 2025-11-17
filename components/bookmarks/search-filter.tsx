@@ -16,6 +16,8 @@ interface SearchFilterProps {
   tags: TagData[];
 }
 
+const MAX_TAGS_TO_SHOW = 10;
+
 export function SearchFilter({ tags }: SearchFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,7 +74,7 @@ export function SearchFilter({ tags }: SearchFilterProps) {
           >
             All Tags
           </button>
-          {tags.filter(tag => tag.bookmarkCount > 1).slice(0, 10).map((tag, index) => (
+          {tags.slice(0, MAX_TAGS_TO_SHOW).map((tag, index) => (
             <Tag
               key={tag.id}
               name={tag.name}
