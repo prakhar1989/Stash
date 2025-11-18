@@ -45,7 +45,8 @@ export function BookmarkCard({
   tags,
   faviconUrl,
   onDelete,
-}: BookmarkCardProps) {
+  readOnly = false,
+}: BookmarkCardProps & { readOnly?: boolean }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const displayTitle = title || url;
@@ -170,7 +171,7 @@ export function BookmarkCard({
               </button>
 
               {/* Delete button */}
-              {onDelete && (
+              {!readOnly && onDelete && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();

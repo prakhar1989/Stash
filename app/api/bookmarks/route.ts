@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       .values({
         id: user.id,
         email: user.primaryEmail || "unknown@example.com",
+        username: (user.primaryEmail || "unknown").split("@")[0],
       })
       .onConflictDoNothing();
 

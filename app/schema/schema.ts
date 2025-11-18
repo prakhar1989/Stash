@@ -36,6 +36,7 @@ export const bookmarkStatusEnum = pgEnum("bookmark_status", [
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").unique().notNull(),
+  username: text("username").unique(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

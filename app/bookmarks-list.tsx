@@ -30,7 +30,15 @@ interface BookmarksListResponse {
   totalPages: number;
 }
 
-export function BookmarksList() {
+interface BookmarksListProps {
+  endpoint?: string;
+  readOnly?: boolean;
+}
+
+export function BookmarksList({
+  endpoint = "/api/bookmarks",
+  readOnly = false,
+}: BookmarksListProps) {
   const searchParams = useSearchParams();
   const [data, setData] = useState<BookmarksListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +60,9 @@ export function BookmarksList() {
         params.set("page", page);
         params.set("pageSize", "10");
 
-        const response = await fetch(`/api/bookmarks?${params.toString()}`);
+        // Handle dynamic endpoint that might already have params or path params
+        const separator = endpoint.includes("?") ? "&" : "?";
+        const response = await fetch(`${endpoint}${separator}${params.toString()}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch bookmarks");
@@ -68,9 +78,11 @@ export function BookmarksList() {
     };
 
     fetchBookmarks();
-  }, [searchParams]);
+  }, [searchParams, endpoint]);
 
   const handleDelete = async (id: string) => {
+    if (readOnly) return;
+
     try {
       const response = await fetch(`/api/bookmarks/${id}`, {
         method: "DELETE",
@@ -121,7 +133,7 @@ export function BookmarksList() {
     return (
       <div className="p-8 text-center bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         <p className="text-gray-600 dark:text-gray-400">
-          No bookmarks yet. Add your first one to get started!
+          No bookmarks yet.
         </p>
       </div>
     );
@@ -130,7 +142,12 @@ export function BookmarksList() {
   return (
     <div className="space-y-4">
       {data.bookmarks.map((bookmark) => (
-        <BookmarkCard key={bookmark.id} {...bookmark} onDelete={handleDelete} />
+        <BookmarkCard
+          key={bookmark.id}
+          {...bookmark}
+          onDelete={readOnly ? undefined : handleDelete}
+          readOnly={readOnly}
+        />
       ))}
 
       {/* Pagination */}
