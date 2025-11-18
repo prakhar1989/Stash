@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { BookmarkCard } from "@/components/bookmarks/bookmark-card";
 import { Button } from "@/components/ui/button";
 
@@ -40,6 +40,8 @@ export function BookmarksList({
   readOnly = false,
 }: BookmarksListProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [data, setData] = useState<BookmarksListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,7 +161,7 @@ export function BookmarksList({
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
               params.set("page", String(data.page - 1));
-              window.location.href = `/?${params.toString()}`;
+              router.push(`${pathname}?${params.toString()}`);
             }}
           >
             Previous
@@ -173,7 +175,7 @@ export function BookmarksList({
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
               params.set("page", String(data.page + 1));
-              window.location.href = `/?${params.toString()}`;
+              router.push(`${pathname}?${params.toString()}`);
             }}
           >
             Next
