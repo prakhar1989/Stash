@@ -1,7 +1,7 @@
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "./stack";
 import "@/app/styles/globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Newsreader, IBM_Plex_Mono } from "next/font/google";
 
@@ -31,6 +31,36 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Stashly",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Stashly",
+    title: "Stashly - AI-Powered Bookmarking",
+    description:
+      "Save and organize your bookmarks with AI-powered content extraction, intelligent summaries, and automatic tagging.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Stashly - AI-Powered Bookmarking",
+    description:
+      "Save and organize your bookmarks with AI-powered content extraction, intelligent summaries, and automatic tagging.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
