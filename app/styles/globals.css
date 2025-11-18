@@ -145,11 +145,6 @@
       linear-gradient(135deg, oklch(0.12 0.01 280) 0%, oklch(0.15 0.02 290) 100%);
   }
 
-  /* Glass morphism effect */
-  .glass {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
-  }
-
   /* Smooth animations */
   @keyframes fadeInUp {
     from {
