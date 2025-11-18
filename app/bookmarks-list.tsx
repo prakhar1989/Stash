@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BookmarkCard } from "@/components/bookmarks/bookmark-card";
+import { Button } from "@/components/ui/button";
 
 interface Tag {
   id: string;
@@ -49,7 +50,7 @@ export function BookmarksList() {
         if (q) params.set("q", q);
         if (tag) params.set("tag", tag);
         params.set("page", page);
-        params.set("pageSize", "20");
+        params.set("pageSize", "10");
 
         const response = await fetch(`/api/bookmarks?${params.toString()}`);
 
@@ -135,9 +136,9 @@ export function BookmarksList() {
       {/* Pagination */}
       {data.totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-6">
-          <button
+          <Button
             disabled={data.page === 1}
-            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-white rounded-md disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
               params.set("page", String(data.page - 1));
@@ -145,13 +146,13 @@ export function BookmarksList() {
             }}
           >
             Previous
-          </button>
+          </Button>
           <span className="px-4 py-2">
             Page {data.page} of {data.totalPages}
           </span>
-          <button
+          <Button
             disabled={data.page === data.totalPages}
-            className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-white rounded-md disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
               params.set("page", String(data.page + 1));
@@ -159,7 +160,7 @@ export function BookmarksList() {
             }}
           >
             Next
-          </button>
+          </Button>
         </div>
       )}
     </div>

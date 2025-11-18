@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
     const tag = searchParams.get("tag");
     const status = searchParams.get("status");
     const page = parseInt(searchParams.get("page") || "1");
-    const pageSize = parseInt(searchParams.get("pageSize") || "20");
+    const pageSize = parseInt(searchParams.get("pageSize") || "10");
 
     // Initialize database
     const db = drizzle(neon(process.env.DATABASE_URL!), { schema });
